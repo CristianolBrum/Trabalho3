@@ -20,6 +20,7 @@ public class Cadastro {
             PreparedStatement pstm;
             Connection con = ConnBD.getConnection();
 
+            con.setAutoCommit(false);
             pstm = con.prepareStatement("INSERT INTO dados (nome,cpf,rg,telefone) VALUES (?, ?, ?, ?)");
             pstm.setString(1, nome);
             pstm.setString(2, cpf);
@@ -27,10 +28,10 @@ public class Cadastro {
             pstm.setString(4, telefone);
             pstm.executeUpdate();
             
-            System.out.println(nome);
-            System.out.println(cpf);
-            System.out.println(rg);
-            System.out.println(telefone);
+            pstm = con.prepareStatement("INSERT INTO cliente (idCliente,cpf) VALUES ((SELECT id FROM dados ORDER BY id DESC LIMIT 1), ?)");
+            pstm.setString(1, cpf);
+            pstm.executeUpdate();
+            con.commit();
             
             JSONObject retorno = new JSONObject();
             retorno.put("sucesso", true);
@@ -69,11 +70,11 @@ public class Cadastro {
             //[]
             
             while(rs.next()) {
-                String clienteID = rs.getString(1);
-                String clienteNome = rs.getString(2);
-                String clienteCPF = rs.getString(3);
-                String clienteRg = rs.getString(4);
-                String clienteTelefone = rs.getString(5);
+                String clienteID = rs.getString("id");
+                String clienteNome = rs.getString("nome");
+                String clienteCPF = rs.getString("cpf");
+                String clienteRg = rs.getString("rg");
+                String clienteTelefone = rs.getString("telefone");
                 
                 JSONObject jsonCliente = new JSONObject();
                 jsonCliente.put("id", clienteID);
